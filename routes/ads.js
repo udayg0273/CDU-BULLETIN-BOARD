@@ -28,14 +28,14 @@ function upload_images(images_data) {
 
     if (images_data[key])
       utils.uploadToS3(imageKey, fileExt, images_data[key].image_data);
-    images.push({ url: imageKey + "." + fileExt });
+      let url = imageKey + "." + fileExt;
+    images.push({ url: utils.getPreSignedURL(url) });
   }
 
   return images;
 } // Upload multiple images to s3 bucket - end
 
 router.post("/post_ad", (req, res) => {
-  console.log("ok",req.body)
   let data = req.body;
   if (data.images) {
     data.images = upload_images(data.images);
@@ -76,15 +76,15 @@ router.post("/get_one_ad", (req, res) => {
             reason: "failed"
           };
         } else {
-          let image_data = [];
-          if (response.images.length != 0) {
-            response.images.forEach(element => {
-              image_data.push({
-                url: utils.getPreSignedURL(element.url)
-              });
-            });
-          }
-          response.images = image_data;
+          // let image_data = [];
+          // if (response.images.length != 0) {
+          //   response.images.forEach(element => {
+          //     image_data.push({
+          //       url: utils.getPreSignedURL(element.url)
+          //     });
+          //   });
+          // }
+          // response.images = image_data;
           res
             .status(HttpStatus.ACCEPTED)
             .json({ success: true, msg: "Fetched", data: response });
@@ -123,17 +123,17 @@ router.get("/get_top_picks", (req, res) => {
           reason: "failed"
         };
       } else {
-        for (i = 0; i < response.length; i++) {
-          let image_data = [];
-          if (response[i].images.length != 0) {
-            response[i].images.forEach(element => {
-              image_data.push({
-                url: utils.getPreSignedURL(element.url)
-              });
-            });
-          }
-          response[i].images = image_data;
-        }
+        // for (i = 0; i < response.length; i++) {
+        //   let image_data = [];
+        //   if (response[i].images.length != 0) {
+        //     response[i].images.forEach(element => {
+        //       image_data.push({
+        //         url: utils.getPreSignedURL(element.url)
+        //       });
+        //     });
+        //   }
+        //   response[i].images = image_data;
+        // }
         res
           .status(HttpStatus.ACCEPTED)
           .json({ success: true, msg: "Fetched", data: response });
@@ -177,17 +177,17 @@ router.post("/get_ads_by_type", (req, res) => {
             reason: "failed"
           };
         } else {
-          for (i = 0; i < response.length; i++) {
-            let image_data = [];
-            if (response[i].images.length != 0) {
-              response[i].images.forEach(element => {
-                image_data.push({
-                  url: utils.getPreSignedURL(element.url)
-                });
-              });
-            }
-            response[i].images = image_data;
-          }
+          // for (i = 0; i < response.length; i++) {
+          //   let image_data = [];
+          //   if (response[i].images.length != 0) {
+          //     response[i].images.forEach(element => {
+          //       image_data.push({
+          //         url: utils.getPreSignedURL(element.url)
+          //       });
+          //     });
+          //   }
+          //   response[i].images = image_data;
+          // }
           res
             .status(HttpStatus.ACCEPTED)
             .json({ success: true, msg: "Fetched", data: response });
@@ -208,6 +208,213 @@ router.post("/get_ads_by_type", (req, res) => {
             .json({ success: false, msg: "Internal server error", error: err });
         }
       });
+  } else {
+    return res
+      .status(HttpStatus.UNAUTHORIZED)
+      .json({ success: false, msg: "Required params missing", errors: errors });
+  }
+}); // find one product - endquery
+
+// get ads by user type -start
+router.post("/get_ads_by_user_type", (req, res) => {
+  req.assert("user_type", "Ad type should not be empty").notEmpty();
+  var errors = req.validationErrors();
+  let query = {};
+  if (!errors) {
+    let data = req.body;
+    if (data.user_type) {
+      query = { user_type: data.user_type };
+    };
+    adService
+      .getAdsByType(query)
+      .then(response => {
+        if (!response) {
+          throw {
+            reason: "failed"
+          };
+        } else {
+          // for (i = 0; i < response.length; i++) {
+          //   let image_data = [];
+          //   if (response[i].images.length != 0) {
+          //     response[i].images.forEach(element => {
+          //       image_data.push({
+          //         url: utils.getPreSignedURL(element.url)
+          //       });
+          //     });
+          //   }
+          //   response[i].images = image_data;
+          // }
+          res
+            .status(HttpStatus.ACCEPTED)
+            .json({ success: true, msg: "Fetched", data: response });
+        }
+      })
+      .catch(err => {
+        if (err.reason == "failed") {
+          res
+            .status(HttpStatus.UNAUTHORIZED)
+            .json({ success: false, msg: "Id not Found" });
+        } else if (err.name === "MongoError" && err.code === 11000) {
+          return res
+            .status(HttpStatus.METHOD_NOT_ALLOWED)
+            .json({ success: false, msg: "duplicate error", error: err });
+        } else {
+          return res
+            .status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .json({ success: false, msg: "Internal server error", error: err });
+        }
+      });
+  } else {
+    return res
+      .status(HttpStatus.UNAUTHORIZED)
+      .json({ success: false, msg: "Required params missing", errors: errors });
+  }
+}); // get ads by user type - endquery
+
+// get ads by user ID -start
+router.post("/get_ads_by_user_id", (req, res) => {
+  req.assert("user_id", "Ad type should not be empty").notEmpty();
+  var errors = req.validationErrors();
+  let query = {};
+  if (!errors) {
+    let data = req.body;
+    adService
+      .getAdsByUserID(data.user_id)
+      .then(response => {
+        if (!response) {
+          throw {
+            reason: "failed"
+          };
+        } else {
+          // for (i = 0; i < response.length; i++) {
+          //   let image_data = [];
+          //   if (response[i].images.length != 0) {
+          //     response[i].images.forEach(element => {
+          //       image_data.push({
+          //         url: utils.getPreSignedURL(element.url)
+          //       });
+          //     });
+          //   }
+          //   response[i].images = image_data;
+          // }
+          res
+            .status(HttpStatus.ACCEPTED)
+            .json({ success: true, msg: "Fetched", data: response });
+        }
+      })
+      .catch(err => {
+        if (err.reason == "failed") {
+          res
+            .status(HttpStatus.UNAUTHORIZED)
+            .json({ success: false, msg: "Id not Found" });
+        } else if (err.name === "MongoError" && err.code === 11000) {
+          return res
+            .status(HttpStatus.METHOD_NOT_ALLOWED)
+            .json({ success: false, msg: "duplicate error", error: err });
+        } else {
+          return res
+            .status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .json({ success: false, msg: "Internal server error", error: err });
+        }
+      });
+  } else {
+    return res
+      .status(HttpStatus.UNAUTHORIZED)
+      .json({ success: false, msg: "Required params missing", errors: errors });
+  }
+}); // get ads by user ID - endquery
+
+// report an ad -start
+router.post("/report_ad", (req, res) => {
+  req.assert("ad_id", "Ad type should not be empty").notEmpty();
+  req.assert("description", "Ad type should not be empty").notEmpty();
+  var errors = req.validationErrors();
+  if (!errors) {
+    let data = req.body;
+    const query = {
+      ad_id: data.ad_id,
+      description: data.description,
+      reported_by: data.reported_by
+    }
+    adService.reportAd(query)
+      .then(response => {
+        console.log(response);
+        if (!response) {
+          throw {
+            reason: "failed"
+          };
+        }
+        else {
+          adService.updateAd(response.ad_id)
+            .then(response => {
+              res.json({ status: HttpStatus.OK, msg: "Ad reported." })
+            })
+            .catch(err => {
+              if (err.reason == "failed") {
+                res
+                  .status(HttpStatus.UNAUTHORIZED)
+                  .json({ success: false, msg: "Id not Found" });
+              } else if (err.name === "MongoError" && err.code === 11000) {
+                return res
+                  .status(HttpStatus.METHOD_NOT_ALLOWED)
+                  .json({ success: false, msg: "duplicate error", error: err });
+              } else {
+                return res
+                  .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                  .json({ success: false, msg: "Internal server error", error: err });
+              }
+            });
+        }
+      })
+  } else {
+    return res
+      .status(HttpStatus.UNAUTHORIZED)
+      .json({ success: false, msg: "Required params missing", errors: errors });
+  }
+}); // find one product - endquery
+
+// Delete ad API - start
+router.post("/delete_ad", (req, res) => {
+  let data = req.body;
+  adService
+    .deleteAd(data.ad_id)
+    .then(response => {
+      if (!response) {
+        throw {
+          reason: "failed"
+        };
+      } else {
+        res.json({ status: HttpStatus.OK, msg: "Ad deleted." });
+      }
+    })
+    .catch(err => {
+      if ((err.reason = "failed")) {
+        console.log(err)
+        res.json({ status: HttpStatus.INTERNAL_SERVER_ERROR, msg: err });
+      }
+    });
+});
+// Delete ad API - end
+
+// Get reported apps API start
+router.get("/get_reported_ads", (req, res) => {
+  var errors = req.validationErrors();
+  if (!errors) {
+    // const query = { status: 'reported' };
+    adService.findReportedAds()
+      .then(response => {
+        console.log(response);
+        if (!response) {
+          throw {
+            reason: "failed"
+          };
+        }
+        else {
+          res
+            .status(HttpStatus.ACCEPTED)
+            .json({ success: true, msg: "Fetched", data: response });
+        }
+      })
   } else {
     return res
       .status(HttpStatus.UNAUTHORIZED)

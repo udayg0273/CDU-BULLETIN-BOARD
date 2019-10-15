@@ -22,7 +22,8 @@ const UserSchema = mongoose.Schema ({
   gender: { type: String, enum: ['male', 'female']},
   role: {
     type: String,
-    enum: ['user', 'admin']
+    enum: ['user', 'admin'],
+    default: 'user'
   }
 }, {timestamps: true});
 
@@ -53,4 +54,10 @@ module.exports.comparePassword = function(candidatePassword, hash, callback) {
     if(err) throw err;
     callback(null, isMatch);
   });
+
+}
+
+module.exports.getUserByID = function(id, callback) {
+  const query = {_id: id}
+  return User.findById(query, callback);
 }

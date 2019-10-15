@@ -101,7 +101,8 @@ router.post('/authenticate', (req, res, next) => {
               username: user.username,
               email: user.email,
               age: user.age,
-              gender: user.gender
+              gender: user.gender,
+              role: user.role
             }
           })
         } else {
@@ -112,5 +113,23 @@ router.post('/authenticate', (req, res, next) => {
   });
 
 });
+
+router.post('/get_user_by_id', (req, res) => {
+  let data = req.body;
+  User.getUserByID(data.user_id)
+  .then(response => {
+    console.log(response);
+    if (!response) {
+      throw {
+        reason: "failed"
+      };
+    }
+    else {
+      res
+        .status(HttpStatus.ACCEPTED)
+        .json({ success: true, msg: "Fetched", data: response });
+    }
+  })
+})
 
 module.exports = router;

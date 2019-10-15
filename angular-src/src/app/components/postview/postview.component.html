@@ -1,7 +1,14 @@
 <app-navbar></app-navbar>
-
+<div class="back-button" (click)="backToPage()">
+    <div class="arrow-wrap">
+        <span class="arrow-part-1"></span>
+        <span class="arrow-part-2"></span>
+        <span class="arrow-part-3"></span>
+    </div>
+</div>
+<!-- <div class="back" (click)="backToPage()"><i class="fa fa-arrow-left" aria-hidden="true"></i> Back</div> -->
 <div class="container">
-    <section class="grid-col-12" style="margin-top: 50px">
+    <section *ngIf="showCar" class="grid-col-12" style="margin-top: 50px">
         <owl-carousel [options]="mySlideOptions" [items]="images" [carouselClasses]="['owl-theme', 'sliding']">
             <div class="item" *ngFor="let image of mySlideImages;let i = index">
                 <div>
@@ -10,34 +17,43 @@
             </div>
         </owl-carousel>
     </section>
-
-    <section class="grid-col-12">
-        <h3 class="h-underline-s">Description</h3>
-        <h5>{{ad.title | uppercase}}</h5>
-        <div class="span-12">
-            <ol class="name-value" style="width: 100%;">
-                <li>
-                    <label for="about">Ad Type</label>
-                    <span id="about">{{ad.ad_type}}</span>
-                </li>
-                <li>
-                    <label for="about">Category</label>
-                    <span id="Span1">{{ad.category}}</span>
-                </li>
-                <li>
-                    <label for="about">Price</label>
-                    <span id="Span2">$ {{ad.price}}</span>
-                </li>
-                <li>
-                    <label for="about">Status</label>
-                    <span id="Span2">{{ad.status}}</span>
-                </li>
-                <hr>
-                <li>
-                    <label for="about">Contact Details</label>
-                    <span id="Span2" style="text-align:justify">{{ad.contact_details}}</span>
-                </li>
-            </ol>
+    <div class="row">
+        <div class="col-sm-4">
+            <div class="">
+                <div class="card-body">
+                    <div class="lead">{{ad.title}}</div>
+                    <hr>
+                    <div style="margin-bottom: 10px">
+                        {{ad.contact_details}}
+                    </div>
+                    <table class="table">
+                        <tr>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                        <tr>
+                            <td>Ad Type :</td>
+                            <td style="font-weight:bold">{{ad.ad_type}}</td>
+                        </tr>
+                        <tr>
+                            <td>Ad Category :</td>
+                            <td style="font-weight:bold">{{ad.category}}</td>
+                        </tr>
+                        <tr>
+                            <td>Price :</td>
+                            <td style="font-weight:bold">$ {{ad.price}}</td>
+                        </tr>
+                        <tr>
+                            <td>Status :</td>
+                            <td style="font-weight:bold">{{ad.status}}</td>
+                        </tr>
+                        <tr>
+                            <td>Posted On :</td>
+                            <td style="font-weight:bold">{{ad.createdAt | date :'dd-MMMM-yy'}}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
         </div>
-    </section>
+    </div>
 </div>

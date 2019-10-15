@@ -17,7 +17,10 @@ import { CommonModule } from '@angular/common';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgImageSliderModule } from 'ng-image-slider';
 import { OwlModule } from 'ngx-owl-carousel';
-// import * as AnythingThatIsNotDollarSignOrSymbolOrjQuery from "jquery"
+import { MDBBootstrapModule } from 'angular-bootstrap-md';
+import { MyadsComponent } from './components/myads/myads.component';
+import { ReportedadsComponent } from './components/reportedads/reportedads.component';
+import { FilterPipeModule } from 'ngx-filter-pipe';
 
 @NgModule({
   declarations: [
@@ -29,6 +32,8 @@ import { OwlModule } from 'ngx-owl-carousel';
     ListviewComponent,
     PostviewComponent,
     SearchbarComponent,
+    MyadsComponent,
+    ReportedadsComponent,
   ],
   imports: [
     NgImageSliderModule,
@@ -39,7 +44,11 @@ import { OwlModule } from 'ngx-owl-carousel';
     HttpClientModule,
     ReactiveFormsModule,
     ToastrModule.forRoot(),
-    OwlModule
+    OwlModule,
+    MDBBootstrapModule.forRoot(),
+    FilterPipeModule
+    
+    
   ],
   providers: [],
   bootstrap: [AppComponent]

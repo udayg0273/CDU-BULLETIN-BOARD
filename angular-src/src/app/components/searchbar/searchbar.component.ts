@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, EventEmitter, Output } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
 import { config } from '../../../../constant';
@@ -9,11 +9,14 @@ import { config } from '../../../../constant';
   styleUrls: ['./searchbar.component.scss']
 })
 export class SearchbarComponent implements OnInit {
-  cat: any = '';
-  subcat: any = '';
+
+  @Output() messageToEmit = new EventEmitter<string>();
+  cat: any = null;
+  subcat: any = null;
   active: boolean = false;
   first: boolean = true;
   listItem: any = config.menuList;
+  ad_type: any = null;
   constructor(private router: Router, private _location: Location, private activatedRoute: ActivatedRoute) { }
 
   ngOnInit() {
@@ -22,14 +25,29 @@ export class SearchbarComponent implements OnInit {
     this.activatedRoute.params.subscribe(data => {
       this.cat = data.ad_type;
       this.subcat = data.ad_category
+      if (this.router.url == '/myads') {
+        this.cat = 'My Ads';
+      } else if (this.router.url == '/reportedads') {
+        this.cat = 'Reported Ads';
+      }
     })
   }
 
   get_list(menu, submenu) {
-    this.router.navigate(['list', { 'ad_type': menu, 'ad_category': submenu }]);
+    this.ad_type = menu;
+    if (submenu == null) {
+      this.router.navigate(['list', { 'ad_type': menu }]);
+    } else {
+      this.router.navigate(['list', { 'ad_type': menu, 'ad_category': submenu }]);
+    }
   }
 
-  backToPage() {
-    this._location.back();
+  backToHome() {
+    this.router.navigate(['gridview']);
+  }
+
+
+  filterData() {
+    this.messageToEmit.emit(document.getElementById('search')['value'].toString())
   }
 }
